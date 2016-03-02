@@ -1,0 +1,25 @@
+Average Time Complexity
+BEGIN: O(1), initialize tempDict
+
+GET: O(1), in worst case, it could be O(len(transaction)), which will happen after ROLLBACK command. In most case, it will perform well ,O(1),since I use a cache to improve search time. Cache will be updated when executed SET, UNSET. If key not in cache, it will search tempDict and persistDict and upadte Cache.
+
+SET: O(1),update tempDict or persistDict, numDict and cache
+
+UNSET: O(1), update tempDict or persistDict, numDict and cache
+
+NUMEQUALTO: O(1), used a global dictionary,numDict to track the update of key
+
+ROLLBACK: O(len(temp dictionary of current transaction))
+
+COMMIT: O(len(all temp dictionary transaction))
+
+
+Data Structure:
+tempDict: to keep dictionary for different transaction,key is transaction number(from 1 to current number), value is dictionary corresponding to current transaction number, which store data and its value.
+
+persistDict: stores the persistent data( after COMMIT command or wihtout transation)
+
+numDict: keep recording the number of values, which will be updated in SET, UNSET, ROLLBACK
+
+
+
