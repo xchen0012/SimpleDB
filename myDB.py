@@ -1,4 +1,7 @@
 import sys
+class WrongCommandException(Exception):
+    def __init__(self,string):
+        print string
 class myDB(object):
 
     def __init__(self):
@@ -52,7 +55,9 @@ class myDB(object):
                                 
             self.transaction=0
     def unset(self,key):
-        self.numDict[self.get(key)]-=1
+        value = self.get(key)
+        if value!='NULL':
+            self.numDict[self.get(key)]-=1
         if self.transaction >0:
             self.tempDict[self.transaction][key]='NULL'
           #  deleteKey[transaction].add(args[1])
@@ -95,49 +100,53 @@ class myDB(object):
     def start(self):
         
         while True:
-            line = sys.stdin.readline()
-            line = line.lower().strip()
-            args = line.split()
-            if len(args)==1:
-                # END COMMAND
-                if line == 'end':
-                    self.end()
-                    break
-                # TRANSACTION COMMAND
-                elif line == 'begin':
-                    self.transactionBegin()
-                # ROLLBACK COMMAND
-                elif line == 'rollback':
-                    self.rollback()
-                # COMMIT COMMAND
-                elif line == 'commit':   
-                    self.commit()
-                else:
-                    print 'could not find command: \'%s\''%line
+            try:
+                line = sys.stdin.readline()
+                line = line.lower().strip()
+                args = line.split()
+                if len(args)==1:
+                    # END COMMAND
+                    if line == 'end':
+                        self.end()
+                        break
+                    # TRANSACTION COMMAND
+                    elif line == 'begin':
+                        self.transactionBegin()
+                    # ROLLBACK COMMAND
+                    elif line == 'rollback':
+                        self.rollback()
+                    # COMMIT COMMAND
+                    elif line == 'commit':   
+                        self.commit()
+                    else:
+                        raise WrongCommandException('could not find command: \'%s\''%line)
 
-            elif len(args)==2:
-                # GET COMMAND
-                if args[0] == 'get':
-                    value=self.get(args[1])
-                    print value
-                # UNSET COMMAND
-                elif args[0] == 'unset':
-                    self.unset(args[1])
-                #NUMEQUALTO COMMAND
-                elif args[0] == 'numequalto':
-                    self.numequalto(args[1])
-                else:
-                    print 'could not find command: \'%s\''%line
+                elif len(args)==2:
+                    # GET COMMAND
+                    if args[0] == 'get':
+                        value=self.get(args[1])
+                        print value
+                    # UNSET COMMAND
+                    elif args[0] == 'unset':
+                        self.unset(args[1])
+                    #NUMEQUALTO COMMAND
+                    elif args[0] == 'numequalto':
+                        self.numequalto(args[1])
+                    else:
+                        raise WrongCommandException('could not find command: \'%s\''%line)
 
-            elif len(args)==3:
-                #SET COMMAND
-                if args[0] == 'set':
-                    self.set(args[1],args[2])
-                    
+                elif len(args)==3:
+                    #SET COMMAND
+                    if args[0] == 'set':
+                        self.set(args[1],args[2])
+                        
+                    else:
+                        raise WrongCommandException('could not find command: \'%s\''%line)
                 else:
-                    print 'could not find command: \'%s\''%line
-            else:
-                print 'could not find command: \'%s\''%line
+                    raise WrongCommandException('could not find command: \'%s\''%line)
+            except WrongCommandException:
+                pass
+
 if __name__ == '__main__':
     #global transaction   
     db = myDB()
